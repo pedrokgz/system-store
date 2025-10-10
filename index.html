@@ -172,9 +172,52 @@
         </div>
     </footer>
 
-    <!-- Modal de Autenticação (a mesma estrutura que já funcionava) -->
+    <!-- Modal de Autenticação -->
     <div id="auth-modal" class="hidden fixed inset-0 z-[70] items-center justify-center modal-animated">
-        <!-- ... (Estrutura completa do modal de login/cadastro) ... -->
+        <div class="modal-overlay fixed inset-0" id="auth-modal-overlay"></div>
+        <div class="modal-content relative w-full max-w-md p-8 rounded-2xl m-4">
+            <button id="close-auth-modal-btn" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+            <!-- Login Form -->
+            <div id="login-view">
+                <h3 class="text-2xl font-bold text-center mb-6 gradient-text text-glow">Entrar na Loja</h3>
+                <form id="login-form">
+                    <div id="login-error" class="text-red-400 text-center mb-4 text-sm h-5"></div>
+                    <div class="mb-4">
+                        <label for="login-email" class="block mb-2 text-sm font-medium text-slate-300">Email</label>
+                        <input type="email" id="login-email" class="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-violet-500" placeholder="seu@email.com" required>
+                    </div>
+                    <div class="mb-6">
+                        <label for="login-password" class="block mb-2 text-sm font-medium text-slate-300">Senha</label>
+                        <input type="password" id="login-password" class="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-violet-500" placeholder="********" required>
+                    </div>
+                    <button type="submit" class="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold py-3 rounded-lg button-glow">Entrar</button>
+                </form>
+                <p class="text-center text-sm text-slate-400 mt-6">
+                    Não tem uma conta? <button id="show-register-view" class="font-semibold text-violet-400 hover:underline">Cadastre-se</button>
+                </p>
+            </div>
+            <!-- Register Form -->
+            <div id="register-view" class="hidden">
+                <h3 class="text-2xl font-bold text-center mb-6 gradient-text text-glow">Criar Conta</h3>
+                <form id="register-form">
+                     <div id="register-error" class="text-red-400 text-center mb-4 text-sm h-5"></div>
+                    <div class="mb-4">
+                        <label for="register-email" class="block mb-2 text-sm font-medium text-slate-300">Email</label>
+                        <input type="email" id="register-email" class="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-violet-500" placeholder="seu@email.com" required>
+                    </div>
+                    <div class="mb-6">
+                        <label for="register-password" class="block mb-2 text-sm font-medium text-slate-300">Senha</label>
+                        <input type="password" id="register-password" class="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-violet-500" placeholder="Mínimo 6 caracteres" required>
+                    </div>
+                    <button type="submit" class="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold py-3 rounded-lg button-glow">Criar Conta</button>
+                </form>
+                <p class="text-center text-sm text-slate-400 mt-6">
+                    Já tem uma conta? <button id="show-login-view" class="font-semibold text-violet-400 hover:underline">Faça login</button>
+                </p>
+            </div>
+        </div>
     </div>
 
     <!-- Modal de Compra e Pagamento -->
@@ -226,7 +269,74 @@
         // ATENÇÃO: Substitua pela sua Chave Pública REAL do Mercado Pago
         const mp = new MercadoPago('SUA_CHAVE_PUBLICA_AQUI');
 
-        // --- LÓGICA DE UI E MODAIS ---
+        // --- LÓGICA DO MODAL DE AUTENTICAÇÃO ---
+        const authModal = document.getElementById('auth-modal');
+        const loginView = document.getElementById('login-view');
+        const registerView = document.getElementById('register-view');
+
+        const openAuthModal = (view = 'login') => {
+            if (view === 'register') {
+                loginView.classList.add('hidden');
+                registerView.classList.remove('hidden');
+            } else {
+                loginView.classList.remove('hidden');
+                registerView.classList.add('hidden');
+            }
+            authModal.classList.remove('hidden');
+            authModal.classList.add('flex');
+        };
+
+        const closeAuthModal = () => {
+            authModal.classList.add('hidden');
+            authModal.classList.remove('flex');
+            document.getElementById('login-error').textContent = '';
+            document.getElementById('register-error').textContent = '';
+        };
+
+        document.getElementById('close-auth-modal-btn').addEventListener('click', closeAuthModal);
+        document.getElementById('auth-modal-overlay').addEventListener('click', closeAuthModal);
+        document.getElementById('show-register-view').addEventListener('click', () => openAuthModal('register'));
+        document.getElementById('show-login-view').addEventListener('click', () => openAuthModal('login'));
+
+        const loginForm = document.getElementById('login-form');
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const errorDiv = document.getElementById('login-error');
+            errorDiv.textContent = '';
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                closeAuthModal();
+            } catch (error) {
+                console.error("Erro no login:", error);
+                errorDiv.textContent = 'Email ou senha inválidos.';
+            }
+        });
+
+        const registerForm = document.getElementById('register-form');
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const errorDiv = document.getElementById('register-error');
+            errorDiv.textContent = '';
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+                closeAuthModal();
+            } catch (error) {
+                console.error("Erro no cadastro:", error);
+                if (error.code === 'auth/email-already-in-use') {
+                    errorDiv.textContent = 'Este email já está em uso.';
+                } else if (error.code === 'auth/weak-password') {
+                    errorDiv.textContent = 'A senha deve ter no mínimo 6 caracteres.';
+                } else {
+                    errorDiv.textContent = 'Ocorreu um erro ao criar a conta.';
+                }
+            }
+        });
+
+        // --- LÓGICA DE UI E MODAIS DE PAGAMENTO ---
         const purchaseModal = document.getElementById('purchase-modal');
         const purchaseProductName = document.getElementById('purchase-product-name');
         const purchaseProductPrice = document.getElementById('purchase-product-price');
@@ -240,8 +350,7 @@
         const openPurchaseModal = (name, price) => {
             const user = auth.currentUser;
             if (!user) {
-                // Aqui você pode chamar a função para abrir o modal de login
-                alert("Por favor, faça login para continuar.");
+                openAuthModal('login'); // Abre o modal de login se o usuário não estiver logado
                 return;
             }
             purchaseProductName.textContent = name;
@@ -252,7 +361,7 @@
             step1.classList.remove('hidden');
             step2.classList.add('hidden');
             paymentFeedback.textContent = '';
-            // Limpa o brick anterior se existir
+            
             if (currentBrick) {
                 currentBrick.unmount();
                 document.getElementById('payment-brick-container').innerHTML = '';
@@ -283,7 +392,6 @@
             paymentFeedback.textContent = 'Gerando link de pagamento...';
             
             try {
-                // Chama a função de back-end que você criou
                 const createPaymentPreference = httpsCallable(functions, 'createPaymentPreference');
                 const result = await createPaymentPreference({ title: name, price: price });
                 const preferenceId = result.data.preferenceId;
@@ -317,7 +425,6 @@
                 callbacks: {
                     onReady: () => {},
                     onSubmit: (cardFormData) => {
-                        // O Brick lida com o processamento, não precisamos fazer nada aqui
                         return new Promise((resolve) => resolve());
                     },
                     onError: (error) => console.error(error),
@@ -326,7 +433,7 @@
             currentBrick = await bricksBuilder.create('payment', 'payment-brick-container', settings);
         }
 
-        // --- LÓGICA DE AUTENTICAÇÃO (MANTIDA) ---
+        // --- LÓGICA DE ATUALIZAÇÃO DA UI DE AUTENTICAÇÃO ---
         const authContainer = document.getElementById('auth-container');
         onAuthStateChanged(auth, user => {
              if (user) {
@@ -335,7 +442,8 @@
                 document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
             } else {
                 authContainer.innerHTML = `<button id="login-btn-main" class="font-semibold text-slate-300 hover:text-white transition-colors">Login</button><button id="register-btn-main" class="bg-violet-600 hover:bg-violet-500 text-white font-semibold py-2 px-5 rounded-lg button-glow">Cadastrar-se</button>`;
-                // Adicione aqui a lógica para abrir o modal de login/cadastro
+                document.getElementById('login-btn-main').addEventListener('click', () => openAuthModal('login'));
+                document.getElementById('register-btn-main').addEventListener('click', () => openAuthModal('register'));
             }
         });
         
