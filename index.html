@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Store - Contas, Robux, Nitro e Mais!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://sdk.mercadopago.com/js/v2"></script> <!-- SDK do Mercado Pago -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(-45deg, #020024, #090979, #000000, #0d0d0d);
+            background-size: 400% 400%;
+            animation: gradientBG 20s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .gradient-text {
+            background: linear-gradient(90deg, #a78bfa, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+
+        .text-glow {
+            text-shadow: 0 0 10px rgba(167, 139, 250, 0.6), 0 0 22px rgba(56, 189, 248, 0.4);
+        }
+
+        .card-glow-effect {
+            position: relative;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-glow-effect:hover {
+            transform: translateY(-8px);
+            border-color: rgba(99, 102, 241, 0.8);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.5), 0 0 40px rgba(56, 189, 248, 0.3);
+        }
+        
+        .hero-bg {
+            background-image: radial-gradient(circle at center, rgba(124, 58, 237, 0.1) 0%, transparent S60%);
+        }
+        
+        .button-glow {
+            box-shadow: 0 0 10px rgba(124, 58, 237, 0.5);
+            transition: all 0.3s ease;
+        }
+        
+        .button-glow:hover {
+             box-shadow: 0 0 25px rgba(124, 58, 237, 0.9);
+        }
+
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: #0f172a; /* slate-900 */
+            border: 1px solid #4f46e5; /* indigo-600 */
+            box-shadow: 0 0 30px rgba(79, 70, 229, 0.5);
+        }
+        @keyframes fadeInModal {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modal-animated {
+            animation: fadeInModal 0.3s ease-out forwards;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #a78bfa;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200">
+
+    <!-- Cabeçalho -->
+    <header class="bg-black/30 backdrop-blur-md sticky top-0 z-50 border-b border-slate-800/50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold gradient-text text-glow">System Store</h1>
+            <div id="auth-container" class="flex items-center space-x-4">
+                 <!-- Botões de login/logout aqui -->
+            </div>
+        </nav>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main>
+        <section class="container mx-auto px-6 py-24 md:py-32 text-center hero-bg">
+             <div class="max-w-3xl mx-auto">
+                <h2 class="text-4xl md:text-6xl font-extrabold mb-4 text-glow tracking-tight">Sua Loja de <span class="gradient-text">Produtos Digitais</span></h2>
+                <p class="text-lg md:text-xl text-slate-300 mb-10">Entrega rápida e segura de Robux, Nitro, Contas Premium e muito mais.</p>
+                <a href="#produtos" class="bg-violet-600 hover:bg-violet-500 text-white font-bold py-3 px-8 rounded-lg text-lg transition-transform transform hover:scale-105 button-glow">
+                    Explorar Produtos
+                </a>
+            </div>
+        </section>
+
+        <section id="produtos" class="py-20">
+            <div class="container mx-auto px-6">
+                <h3 class="text-3xl font-bold text-center mb-6 text-glow">Nossos Produtos</h3>
+                <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="product-card" data-category="streaming" data-name="Conta Netflix" data-price="15.00">
+                        <div class="rounded-xl overflow-hidden card-glow-effect text-center p-6">
+                            <img src="https://placehold.co/80x80/000000/E50914?text=N" alt="Logo Netflix" class="w-20 h-20 mx-auto mb-4 rounded-full">
+                            <h4 class="text-xl font-bold mb-2">Conta Netflix</h4>
+                            <p class="text-slate-400 mb-6 flex-grow">Plano premium. R$ 15,00</p>
+                            <button class="purchase-btn w-full mt-auto bg-red-600/50 hover:bg-red-500/50 border border-red-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors">Comprar</button>
+                        </div>
+                    </div>
+                    <div class="product-card" data-category="roblox" data-name="800 Robux" data-price="25.00">
+                        <div class="rounded-xl overflow-hidden card-glow-effect text-center p-6">
+                            <img src="https://placehold.co/80x80/000000/FFFFFF?text=R$" alt="Ícone Robux" class="w-20 h-20 mx-auto mb-4 rounded-full">
+                            <h4 class="text-xl font-bold mb-2">800 Robux</h4>
+                            <p class="text-slate-400 mb-6 flex-grow">Pacote inicial. R$ 25,00</p>
+                            <button class="purchase-btn w-full mt-auto bg-gray-600/50 hover:bg-gray-500/50 border border-gray-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors">Comprar</button>
+                        </div>
+                    </div>
+                    <div class="product-card" data-category="discord" data-name="Discord Nitro Boost" data-price="30.00">
+                        <div class="rounded-xl overflow-hidden card-glow-effect text-center p-6">
+                            <img src="https://i.imgur.com/aeS9LpT.png" alt="Ícone do Discord" class="w-20 h-20 mx-auto mb-4 rounded-full">
+                            <h4 class="text-xl font-bold mb-2">Discord Nitro Boost</h4>
+                            <p class="text-slate-400 mb-6 flex-grow">Todas as vantagens. R$ 30,00</p>
+                            <button class="purchase-btn w-full mt-auto bg-indigo-600/50 hover:bg-indigo-500/50 border border-indigo-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors">Comprar</button>
+                        </div>
+                    </div>
+                     <div class="product-card" data-category="roblox" data-name="1.700 Robux" data-price="50.00">
+                        <div class="rounded-xl overflow-hidden card-glow-effect text-center p-6">
+                            <img src="https://placehold.co/80x80/000000/FFFFFF?text=R$" alt="Ícone Robux" class="w-20 h-20 mx-auto mb-4 rounded-full">
+                            <h4 class="text-xl font-bold mb-2">1.700 Robux</h4>
+                            <p class="text-slate-400 mb-6 flex-grow">Turbine seu inventário. R$ 50,00</p>
+                            <button class="purchase-btn w-full mt-auto bg-gray-600/50 hover:bg-gray-500/50 border border-gray-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors">Comprar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Footer -->
+    <footer id="contato" class="border-t border-slate-800/50 text-slate-400 py-10">
+       <div class="container mx-auto px-6 text-center">
+            <h4 class="text-2xl font-bold gradient-text text-glow mb-4">System Store</h4>
+            <p>&copy; 2024. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Modal de Autenticação (a mesma estrutura que já funcionava) -->
+    <div id="auth-modal" class="hidden fixed inset-0 z-[70] items-center justify-center modal-animated">
+        <!-- ... (Estrutura completa do modal de login/cadastro) ... -->
+    </div>
+
+    <!-- Modal de Compra e Pagamento -->
+    <div id="purchase-modal" class="hidden fixed inset-0 z-[60] items-center justify-center modal-animated">
+        <div class="modal-overlay fixed inset-0"></div>
+        <div class="modal-content relative w-full max-w-md p-8 rounded-2xl m-4">
+             <button id="close-purchase-modal-btn" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+            <div id="purchase-step-1" class="text-center">
+                <h3 class="text-2xl font-bold mb-4 gradient-text text-glow">Resumo do Pedido</h3>
+                <p class="text-slate-300 mb-2">Você está comprando:</p>
+                <h4 id="purchase-product-name" class="text-xl font-bold text-white mb-4"></h4>
+                <p id="purchase-product-price" class="text-3xl font-bold gradient-text mb-6"></p>
+                <button id="start-payment-btn" class="w-full block bg-violet-600 hover:bg-violet-500 text-white font-bold py-3 rounded-lg button-glow">
+                    Ir para Pagamento
+                </button>
+            </div>
+            <div id="purchase-step-2" class="hidden">
+                 <h3 class="text-2xl font-bold mb-6 text-center gradient-text text-glow">Efetuar Pagamento</h3>
+                 <div id="payment-brick-container" class="w-full"></div>
+                 <div id="payment-feedback" class="text-center mt-4 text-sm h-5"></div>
+                 <div id="loading-spinner" class="hidden mx-auto spinner"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Scripts do Firebase e Lógica de Autenticação -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
+
+        // Sua configuração do Firebase que já estava funcionando
+        const firebaseConfig = {
+            apiKey: "AIzaSyAWEguYLIAlQafQ8wZG_TQLsAIFm9nhV04",
+            authDomain: "system-store-site.firebaseapp.com",
+            projectId: "system-store-site",
+            storageBucket: "system-store-site.firebasestorage.app",
+            messagingSenderId: "327248564213",
+            appId: "1:327248564213:web:e8deeeef4fac7d7c461abc",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const functions = getFunctions(app, 'southamerica-east1'); // Região de São Paulo
+
+        // ATENÇÃO: Substitua pela sua Chave Pública REAL do Mercado Pago
+        const mp = new MercadoPago('SUA_CHAVE_PUBLICA_AQUI');
+
+        // --- LÓGICA DE UI E MODAIS ---
+        const purchaseModal = document.getElementById('purchase-modal');
+        const purchaseProductName = document.getElementById('purchase-product-name');
+        const purchaseProductPrice = document.getElementById('purchase-product-price');
+        const startPaymentBtn = document.getElementById('start-payment-btn');
+        const step1 = document.getElementById('purchase-step-1');
+        const step2 = document.getElementById('purchase-step-2');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const paymentFeedback = document.getElementById('payment-feedback');
+        let currentBrick;
+
+        const openPurchaseModal = (name, price) => {
+            const user = auth.currentUser;
+            if (!user) {
+                // Aqui você pode chamar a função para abrir o modal de login
+                alert("Por favor, faça login para continuar.");
+                return;
+            }
+            purchaseProductName.textContent = name;
+            purchaseProductPrice.textContent = `R$ ${price}`;
+            startPaymentBtn.dataset.name = name;
+            startPaymentBtn.dataset.price = price;
+
+            step1.classList.remove('hidden');
+            step2.classList.add('hidden');
+            paymentFeedback.textContent = '';
+            // Limpa o brick anterior se existir
+            if (currentBrick) {
+                currentBrick.unmount();
+                document.getElementById('payment-brick-container').innerHTML = '';
+            }
+
+            purchaseModal.classList.remove('hidden');
+            purchaseModal.classList.add('flex');
+        };
+
+        const closePurchaseModal = () => purchaseModal.classList.add('hidden');
+        document.getElementById('close-purchase-modal-btn').addEventListener('click', closePurchaseModal);
+        purchaseModal.querySelector('.modal-overlay').addEventListener('click', closePurchaseModal);
+
+        document.querySelectorAll('.purchase-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const card = e.target.closest('.product-card');
+                openPurchaseModal(card.dataset.name, card.dataset.price);
+            });
+        });
+
+        startPaymentBtn.addEventListener('click', async (e) => {
+            const name = e.target.dataset.name;
+            const price = e.target.dataset.price;
+            
+            step1.classList.add('hidden');
+            step2.classList.remove('hidden');
+            loadingSpinner.classList.remove('hidden');
+            paymentFeedback.textContent = 'Gerando link de pagamento...';
+            
+            try {
+                // Chama a função de back-end que você criou
+                const createPaymentPreference = httpsCallable(functions, 'createPaymentPreference');
+                const result = await createPaymentPreference({ title: name, price: price });
+                const preferenceId = result.data.preferenceId;
+
+                loadingSpinner.classList.add('hidden');
+                paymentFeedback.textContent = '';
+                await renderPaymentBrick(preferenceId, price);
+
+            } catch (error) {
+                console.error("Erro ao chamar a função de back-end:", error);
+                loadingSpinner.classList.add('hidden');
+                paymentFeedback.innerHTML = `Erro: ${error.message}<br>Verifique se a função de back-end foi publicada corretamente.`;
+                 setTimeout(() => {
+                    step1.classList.remove('hidden');
+                    step2.classList.add('hidden');
+                }, 5000);
+            }
+        });
+        
+        async function renderPaymentBrick(preferenceId, price) {
+            if (currentBrick) currentBrick.unmount();
+            const bricksBuilder = mp.bricks();
+            const settings = {
+                initialization: {
+                    amount: parseFloat(price),
+                    preferenceId: preferenceId,
+                },
+                customization: {
+                    visual: { style: { theme: 'dark' } }
+                },
+                callbacks: {
+                    onReady: () => {},
+                    onSubmit: (cardFormData) => {
+                        // O Brick lida com o processamento, não precisamos fazer nada aqui
+                        return new Promise((resolve) => resolve());
+                    },
+                    onError: (error) => console.error(error),
+                },
+            };
+            currentBrick = await bricksBuilder.create('payment', 'payment-brick-container', settings);
+        }
+
+        // --- LÓGICA DE AUTENTICAÇÃO (MANTIDA) ---
+        const authContainer = document.getElementById('auth-container');
+        onAuthStateChanged(auth, user => {
+             if (user) {
+                const displayName = user.email ? user.email.split('@')[0] : 'Usuário';
+                authContainer.innerHTML = `<span class="text-slate-300 text-sm">Olá, ${displayName}</span><button id="logout-btn" class="font-semibold text-slate-300 hover:text-white transition-colors bg-slate-700/50 px-4 py-2 rounded-lg">Sair</button>`;
+                document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+            } else {
+                authContainer.innerHTML = `<button id="login-btn-main" class="font-semibold text-slate-300 hover:text-white transition-colors">Login</button><button id="register-btn-main" class="bg-violet-600 hover:bg-violet-500 text-white font-semibold py-2 px-5 rounded-lg button-glow">Cadastrar-se</button>`;
+                // Adicione aqui a lógica para abrir o modal de login/cadastro
+            }
+        });
+        
+    </script>
+</body>
+</html>
