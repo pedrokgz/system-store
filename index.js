@@ -2,7 +2,7 @@ const functions = require("firebase-functions");
 const mercadopago = require("mercadopago");
 
 // ATENÇÃO: Cole seu Access Token (chave secreta) do Mercado Pago aqui
-const MERCADOPAGO_TOKEN = "SEU_ACCESS_TOKEN_SECRETO_AQUI";
+const MERCADOPAGO_TOKEN = "APP_USR-8792461160034749-072618-0f9a52a9e28b722030ec872ad9757f54-2586270948";
 
 mercadopago.configure({
     access_token: MERCADOPAGO_TOKEN,
