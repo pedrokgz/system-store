@@ -1,452 +1,331 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Store - Contas, Robux, Nitro e Mais!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PASSWORD - Jogo Estilo Termo</title>
+    <!-- Carrega o Tailwind CSS para os estilos -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://sdk.mercadopago.com/js/v2"></script> <!-- SDK do Mercado Pago -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Carrega os ícones Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
+        /* Estilos adicionais para esconder a barra de scroll e ajustar cursores */
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(-45deg, #020024, #090979, #000000, #0d0d0d);
-            background-size: 400% 400%;
-            animation: gradientBG 20s ease infinite;
+            -webkit-tap-highlight-color: transparent;
         }
-
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        .gradient-text {
-            background: linear-gradient(90deg, #a78bfa, #38bdf8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-fill-color: transparent;
-        }
-
-        .text-glow {
-            text-shadow: 0 0 10px rgba(167, 139, 250, 0.6), 0 0 22px rgba(56, 189, 248, 0.4);
-        }
-
-        .card-glow-effect {
-            position: relative;
-            background: rgba(15, 23, 42, 0.7);
-            border: 1px solid rgba(124, 58, 237, 0.3);
-            backdrop-filter: blur(10px);
-            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        .hidden-input {
+            opacity: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
             height: 100%;
-            display: flex;
-            flex-direction: column;
+            z-index: 10;
+            cursor: text;
         }
-
-        .card-glow-effect:hover {
-            transform: translateY(-8px);
-            border-color: rgba(99, 102, 241, 0.8);
-            box-shadow: 0 0 20px rgba(99, 102, 241, 0.5), 0 0 40px rgba(56, 189, 248, 0.3);
-        }
-        
-        .hero-bg {
-            background-image: radial-gradient(circle at center, rgba(124, 58, 237, 0.1) 0%, transparent S60%);
-        }
-        
-        .button-glow {
-            box-shadow: 0 0 10px rgba(124, 58, 237, 0.5);
-            transition: all 0.3s ease;
-        }
-        
-        .button-glow:hover {
-             box-shadow: 0 0 25px rgba(124, 58, 237, 0.9);
-        }
-
-        .modal-overlay {
-            background-color: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-content {
-            background: #0f172a; /* slate-900 */
-            border: 1px solid #4f46e5; /* indigo-600 */
-            box-shadow: 0 0 30px rgba(79, 70, 229, 0.5);
-        }
-        @keyframes fadeInModal {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        .modal-animated {
-            animation: fadeInModal 0.3s ease-out forwards;
-        }
-        
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top: 4px solid #a78bfa;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
     </style>
 </head>
-<body class="bg-slate-900 text-slate-200">
+<body class="bg-slate-950 text-slate-100 font-mono selection:bg-emerald-500/30">
 
-    <!-- Cabeçalho -->
-    <header class="bg-black/30 backdrop-blur-md sticky top-0 z-50 border-b border-slate-800/50">
-        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold gradient-text text-glow">System Store</h1>
-            <div id="auth-container" class="flex items-center space-x-4">
-                 <!-- Botões de login/logout aqui -->
-            </div>
-        </nav>
-    </header>
+    <div id="game-container" class="min-h-screen flex flex-col items-center py-6 px-4">
+        
+        <!-- Cabeçalho -->
+        <header class="flex items-center justify-center gap-3 mb-6 w-full max-w-lg border-b border-slate-800 pb-4">
+            <div id="icon-lock"><i data-lucide="lock" class="text-emerald-500 w-8 h-8"></i></div>
+            <div id="icon-unlock" class="hidden"><i data-lucide="unlock" class="text-emerald-500 w-8 h-8"></i></div>
+            <h1 class="text-3xl font-black tracking-wider bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                PASSWORD
+            </h1>
+        </header>
 
-    <!-- Conteúdo Principal -->
-    <main>
-        <section class="container mx-auto px-6 py-24 md:py-32 text-center hero-bg">
-             <div class="max-w-3xl mx-auto">
-                <h2 class="text-4xl md:text-6xl font-extrabold mb-4 text-glow tracking-tight">Sua Loja de <span class="gradient-text">Produtos Digitais</span></h2>
-                <p class="text-lg md:text-xl text-slate-300 mb-10">Entrega rápida e segura de Robux, Nitro, Contas Premium e muito mais.</p>
-                <a href="#produtos" class="bg-violet-600 hover:bg-violet-500 text-white font-bold py-3 px-8 rounded-lg text-lg transition-transform transform hover:scale-105 button-glow">
-                    Explorar Produtos
-                </a>
-            </div>
-        </section>
-
-        <section id="produtos" class="py-20">
-            <div class="container mx-auto px-6">
-                <h3 class="text-3xl font-bold text-center mb-6 text-glow">Nossos Produtos</h3>
-                <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    <div class="product-card" data-category="streaming" data-name="Conta Netflix" data-price="15.00">
-                        <div class="rounded-xl overflow-hidden card-glow-effect text-center p-6">
-                            <img src="https://placehold.co/80x80/000000/E50914?text=N" alt="Logo Netflix" class="w-20 h-20 mx-auto mb-4 rounded-full">
-                            <h4 class="text-xl font-bold mb-2">Conta Netflix</h4>
-                            <p class="text-slate-400 mb-6 flex-grow">Plano premium. R$ 15,00</p>
-                            <button class="purchase-btn w-full mt-auto bg-red-600/50 hover:bg-red-500/50 border border-red-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors">Comprar</button>
-                        </div>
-                    </div>
-                    <div class="product-card" data-category="roblox" data-name="800 Robux" data-price="25.00">
-                        <div class="rounded-xl overflow-hidden card-glow-effect text-center p-6">
-                            <img src="https://placehold.co/80x80/000000/FFFFFF?text=R$" alt="Ícone Robux" class="w-20 h-20 mx-auto mb-4 rounded-full">
-                            <h4 class="text-xl font-bold mb-2">800 Robux</h4>
-                            <p class="text-slate-400 mb-6 flex-grow">Pacote inicial. R$ 25,00</p>
-                            <button class="purchase-btn w-full mt-auto bg-gray-600/50 hover:bg-gray-500/50 border border-gray-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors">Comprar</button>
-                        </div>
-                    </div>
-                    <div class="product-card" data-category="discord" data-name="Discord Nitro Boost" data-price="30.00">
-                        <div class="rounded-xl overflow-hidden card-glow-effect text-center p-6">
-                            <img src="https://i.imgur.com/aeS9LpT.png" alt="Ícone do Discord" class="w-20 h-20 mx-auto mb-4 rounded-full">
-                            <h4 class="text-xl font-bold mb-2">Discord Nitro Boost</h4>
-                            <p class="text-slate-400 mb-6 flex-grow">Todas as vantagens. R$ 30,00</p>
-                            <button class="purchase-btn w-full mt-auto bg-indigo-600/50 hover:bg-indigo-500/50 border border-indigo-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors">Comprar</button>
-                        </div>
-                    </div>
-                     <div class="product-card" data-category="roblox" data-name="1.700 Robux" data-price="50.00">
-                        <div class="rounded-xl overflow-hidden card-glow-effect text-center p-6">
-                            <img src="https://placehold.co/80x80/000000/FFFFFF?text=R$" alt="Ícone Robux" class="w-20 h-20 mx-auto mb-4 rounded-full">
-                            <h4 class="text-xl font-bold mb-2">1.700 Robux</h4>
-                            <p class="text-slate-400 mb-6 flex-grow">Turbine seu inventário. R$ 50,00</p>
-                            <button class="purchase-btn w-full mt-auto bg-gray-600/50 hover:bg-gray-500/50 border border-gray-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors">Comprar</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-    
-    <!-- Footer -->
-    <footer id="contato" class="border-t border-slate-800/50 text-slate-400 py-10">
-       <div class="container mx-auto px-6 text-center">
-            <h4 class="text-2xl font-bold gradient-text text-glow mb-4">System Store</h4>
-            <p>&copy; 2024. Todos os direitos reservados.</p>
+        <!-- Dica / Info -->
+        <div class="bg-slate-900 border border-slate-800 rounded-lg p-3 mb-6 w-full max-w-lg flex items-start gap-3 text-sm text-slate-400">
+            <i data-lucide="info" class="w-5 h-5 flex-shrink-0 text-cyan-500"></i>
+            <p>
+                Descubra a senha oculta. <strong class="text-emerald-400">Maiúsculas e minúsculas fazem diferença!</strong> Pode conter símbolos como @, #, *, etc.
+            </p>
         </div>
-    </footer>
 
-    <!-- Modal de Autenticação -->
-    <div id="auth-modal" class="hidden fixed inset-0 z-[70] items-center justify-center modal-animated">
-        <div class="modal-overlay fixed inset-0" id="auth-modal-overlay"></div>
-        <div class="modal-content relative w-full max-w-md p-8 rounded-2xl m-4">
-            <button id="close-auth-modal-btn" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        <!-- Mensagens de Feedback -->
+        <div class="h-8 mb-4 w-full max-w-lg flex justify-center">
+            <div id="message-box" class="hidden px-4 py-1 rounded-full text-sm font-semibold flex items-center gap-2 animate-pulse">
+                <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                <span id="message-text"></span>
+            </div>
+        </div>
+
+        <!-- Grid de Jogo com Input Invisível -->
+        <div class="relative w-full max-w-lg flex flex-col gap-2 mb-8" id="grid-wrapper">
+            <!-- Input escondido sobre o grid para capturar digitação -->
+            <input
+                id="hidden-input"
+                type="text"
+                class="hidden-input"
+                autocomplete="off"
+                autocorrect="off"
+                spellcheck="false"
+                autofocus
+            />
+            
+            <div id="grid-container" class="flex flex-col gap-2 w-full">
+                <!-- Os quadrados serão gerados aqui pelo JavaScript -->
+            </div>
+        </div>
+
+        <!-- Controles -->
+        <div id="controls-container" class="w-full max-w-lg flex flex-col gap-4">
+            <button 
+                id="btn-submit"
+                class="font-bold py-4 rounded-lg transition-colors flex items-center justify-center gap-2 bg-slate-800 text-slate-500 cursor-not-allowed"
+                disabled
+            >
+                TENTAR ACESSO (Enter)
             </button>
-            <!-- Login Form -->
-            <div id="login-view">
-                <h3 class="text-2xl font-bold text-center mb-6 gradient-text text-glow">Entrar na Loja</h3>
-                <form id="login-form">
-                    <div id="login-error" class="text-red-400 text-center mb-4 text-sm h-5"></div>
-                    <div class="mb-4">
-                        <label for="login-email" class="block mb-2 text-sm font-medium text-slate-300">Email</label>
-                        <input type="email" id="login-email" class="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-violet-500" placeholder="seu@email.com" required>
-                    </div>
-                    <div class="mb-6">
-                        <label for="login-password" class="block mb-2 text-sm font-medium text-slate-300">Senha</label>
-                        <input type="password" id="login-password" class="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-violet-500" placeholder="********" required>
-                    </div>
-                    <button type="submit" class="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold py-3 rounded-lg button-glow">Entrar</button>
-                </form>
-                <p class="text-center text-sm text-slate-400 mt-6">
-                    Não tem uma conta? <button id="show-register-view" class="font-semibold text-violet-400 hover:underline">Cadastre-se</button>
-                </p>
-            </div>
-            <!-- Register Form -->
-            <div id="register-view" class="hidden">
-                <h3 class="text-2xl font-bold text-center mb-6 gradient-text text-glow">Criar Conta</h3>
-                <form id="register-form">
-                     <div id="register-error" class="text-red-400 text-center mb-4 text-sm h-5"></div>
-                    <div class="mb-4">
-                        <label for="register-email" class="block mb-2 text-sm font-medium text-slate-300">Email</label>
-                        <input type="email" id="register-email" class="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-violet-500" placeholder="seu@email.com" required>
-                    </div>
-                    <div class="mb-6">
-                        <label for="register-password" class="block mb-2 text-sm font-medium text-slate-300">Senha</label>
-                        <input type="password" id="register-password" class="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-violet-500" placeholder="Mínimo 6 caracteres" required>
-                    </div>
-                    <button type="submit" class="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold py-3 rounded-lg button-glow">Criar Conta</button>
-                </form>
-                <p class="text-center text-sm text-slate-400 mt-6">
-                    Já tem uma conta? <button id="show-login-view" class="font-semibold text-violet-400 hover:underline">Faça login</button>
-                </p>
-            </div>
         </div>
+
+        <!-- Botão de Reiniciar (Escondido por padrão) -->
+        <div id="restart-container" class="w-full max-w-lg flex flex-col gap-4 hidden">
+            <button 
+                id="btn-restart"
+                class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-4 px-8 rounded-lg transition-colors flex items-center justify-center gap-2 mt-4 animate-bounce hover:animate-none"
+            >
+                <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+                NOVA TENTATIVA
+            </button>
+        </div>
+
+        <!-- Legenda -->
+        <footer class="mt-12 text-xs text-slate-500 flex gap-4">
+           <span class="flex items-center gap-1"><span class="w-3 h-3 bg-emerald-500 inline-block rounded-sm"></span> Correto</span>
+           <span class="flex items-center gap-1"><span class="w-3 h-3 bg-yellow-500 inline-block rounded-sm"></span> Posição Errada</span>
+           <span class="flex items-center gap-1"><span class="w-3 h-3 bg-slate-700 inline-block rounded-sm"></span> Não Existe</span>
+        </footer>
     </div>
 
-    <!-- Modal de Compra e Pagamento -->
-    <div id="purchase-modal" class="hidden fixed inset-0 z-[60] items-center justify-center modal-animated">
-        <div class="modal-overlay fixed inset-0"></div>
-        <div class="modal-content relative w-full max-w-md p-8 rounded-2xl m-4">
-             <button id="close-purchase-modal-btn" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </button>
-            <div id="purchase-step-1" class="text-center">
-                <h3 class="text-2xl font-bold mb-4 gradient-text text-glow">Resumo do Pedido</h3>
-                <p class="text-slate-300 mb-2">Você está comprando:</p>
-                <h4 id="purchase-product-name" class="text-xl font-bold text-white mb-4"></h4>
-                <p id="purchase-product-price" class="text-3xl font-bold gradient-text mb-6"></p>
-                <button id="start-payment-btn" class="w-full block bg-violet-600 hover:bg-violet-500 text-white font-bold py-3 rounded-lg button-glow">
-                    Ir para Pagamento
-                </button>
-            </div>
-            <div id="purchase-step-2" class="hidden">
-                 <h3 class="text-2xl font-bold mb-6 text-center gradient-text text-glow">Efetuar Pagamento</h3>
-                 <div id="payment-brick-container" class="w-full"></div>
-                 <div id="payment-feedback" class="text-center mt-4 text-sm h-5"></div>
-                 <div id="loading-spinner" class="hidden mx-auto spinner"></div>
-            </div>
-        </div>
-    </div>
+    <script>
+        // --- BASE DE DADOS E CONFIGURAÇÕES ---
+        const PASSWORD_DATABASE = [
+            "CT2024#", "admin12", "S3nha@1", "P@sswrd", "qwerty1", 
+            "M@trix1", "root#12", "s3cr3t0", "Xablau1", "Messi10", 
+            "F12024!", "Verao25", "Natal24", "admin@1", "master1", 
+            "mudar@1", "senha!2", "Goku24!", "br@sil1", "Deus#07", 
+            "t3rmin4", "d4t4b4s", "h@cker1", "1234567", "Flamen9", 
+            "Gremio7", "Santos!", "Brasil!"
+        ];
+        const MAX_GUESSES = 6;
 
+        // --- ESTADO DO JOGO ---
+        let targetPassword = '';
+        let guesses = [];
+        let currentGuess = '';
+        let gameOver = false;
+        let gameWon = false;
+        let messageTimeout = null;
 
-    <!-- Scripts do Firebase e Lógica de Autenticação -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
+        // --- ELEMENTOS DO DOM ---
+        const gameContainer = document.getElementById('game-container');
+        const gridContainer = document.getElementById('grid-container');
+        const hiddenInput = document.getElementById('hidden-input');
+        const btnSubmit = document.getElementById('btn-submit');
+        const btnRestart = document.getElementById('btn-restart');
+        const controlsContainer = document.getElementById('controls-container');
+        const restartContainer = document.getElementById('restart-container');
+        const messageBox = document.getElementById('message-box');
+        const messageText = document.getElementById('message-text');
+        const iconLock = document.getElementById('icon-lock');
+        const iconUnlock = document.getElementById('icon-unlock');
 
-        // Sua configuração do Firebase que já estava funcionando
-        const firebaseConfig = {
-            apiKey: "AIzaSyAWEguYLIAlQafQ8wZG_TQLsAIFm9nhV04",
-            authDomain: "system-store-site.firebaseapp.com",
-            projectId: "system-store-site",
-            storageBucket: "system-store-site.firebasestorage.app",
-            messagingSenderId: "327248564213",
-            appId: "1:327248564213:web:e8deeeef4fac7d7c461abc",
-        };
+        // --- INICIALIZAÇÃO DOS ÍCONES LUCIDE ---
+        lucide.createIcons();
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const functions = getFunctions(app, 'southamerica-east1'); // Região de São Paulo
+        // --- LÓGICA DE AVALIAÇÃO ---
+        function evaluateGuess(guess, target) {
+            const result = new Array(target.length).fill('gray');
+            const targetChars = target.split('');
+            const guessChars = guess.split('');
 
-        // ATENÇÃO: Substitua pela sua Chave Pública REAL do Mercado Pago
-        const mp = new MercadoPago('APP_USR-85f28e7e-f542-4998-acf4-183d556a8927');
-
-        // --- LÓGICA DO MODAL DE AUTENTICAÇÃO ---
-        const authModal = document.getElementById('auth-modal');
-        const loginView = document.getElementById('login-view');
-        const registerView = document.getElementById('register-view');
-
-        const openAuthModal = (view = 'login') => {
-            if (view === 'register') {
-                loginView.classList.add('hidden');
-                registerView.classList.remove('hidden');
-            } else {
-                loginView.classList.remove('hidden');
-                registerView.classList.add('hidden');
-            }
-            authModal.classList.remove('hidden');
-            authModal.classList.add('flex');
-        };
-
-        const closeAuthModal = () => {
-            authModal.classList.add('hidden');
-            authModal.classList.remove('flex');
-            document.getElementById('login-error').textContent = '';
-            document.getElementById('register-error').textContent = '';
-        };
-
-        document.getElementById('close-auth-modal-btn').addEventListener('click', closeAuthModal);
-        document.getElementById('auth-modal-overlay').addEventListener('click', closeAuthModal);
-        document.getElementById('show-register-view').addEventListener('click', () => openAuthModal('register'));
-        document.getElementById('show-login-view').addEventListener('click', () => openAuthModal('login'));
-
-        const loginForm = document.getElementById('login-form');
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            const errorDiv = document.getElementById('login-error');
-            errorDiv.textContent = '';
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                closeAuthModal();
-            } catch (error) {
-                console.error("Erro no login:", error);
-                errorDiv.textContent = 'Email ou senha inválidos.';
-            }
-        });
-
-        const registerForm = document.getElementById('register-form');
-        registerForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
-            const errorDiv = document.getElementById('register-error');
-            errorDiv.textContent = '';
-            try {
-                await createUserWithEmailAndPassword(auth, email, password);
-                closeAuthModal();
-            } catch (error) {
-                console.error("Erro no cadastro:", error);
-                if (error.code === 'auth/email-already-in-use') {
-                    errorDiv.textContent = 'Este email já está em uso.';
-                } else if (error.code === 'auth/weak-password') {
-                    errorDiv.textContent = 'A senha deve ter no mínimo 6 caracteres.';
-                } else {
-                    errorDiv.textContent = 'Ocorreu um erro ao criar a conta.';
+            // Primeira passagem: verde
+            for (let i = 0; i < target.length; i++) {
+                if (guessChars[i] === targetChars[i]) {
+                    result[i] = 'green';
+                    targetChars[i] = null;
+                    guessChars[i] = null;
                 }
             }
-        });
 
-        // --- LÓGICA DE UI E MODAIS DE PAGAMENTO ---
-        const purchaseModal = document.getElementById('purchase-modal');
-        const purchaseProductName = document.getElementById('purchase-product-name');
-        const purchaseProductPrice = document.getElementById('purchase-product-price');
-        const startPaymentBtn = document.getElementById('start-payment-btn');
-        const step1 = document.getElementById('purchase-step-1');
-        const step2 = document.getElementById('purchase-step-2');
-        const loadingSpinner = document.getElementById('loading-spinner');
-        const paymentFeedback = document.getElementById('payment-feedback');
-        let currentBrick;
-
-        const openPurchaseModal = (name, price) => {
-            const user = auth.currentUser;
-            if (!user) {
-                openAuthModal('login'); // Abre o modal de login se o usuário não estiver logado
-                return;
-            }
-            purchaseProductName.textContent = name;
-            purchaseProductPrice.textContent = `R$ ${price}`;
-            startPaymentBtn.dataset.name = name;
-            startPaymentBtn.dataset.price = price;
-
-            step1.classList.remove('hidden');
-            step2.classList.add('hidden');
-            paymentFeedback.textContent = '';
-            
-            if (currentBrick) {
-                currentBrick.unmount();
-                document.getElementById('payment-brick-container').innerHTML = '';
+            // Segunda passagem: amarelo
+            for (let i = 0; i < target.length; i++) {
+                if (guessChars[i] !== null && targetChars.includes(guessChars[i])) {
+                    result[i] = 'yellow';
+                    targetChars[targetChars.indexOf(guessChars[i])] = null;
+                }
             }
 
-            purchaseModal.classList.remove('hidden');
-            purchaseModal.classList.add('flex');
-        };
-
-        const closePurchaseModal = () => purchaseModal.classList.add('hidden');
-        document.getElementById('close-purchase-modal-btn').addEventListener('click', closePurchaseModal);
-        purchaseModal.querySelector('.modal-overlay').addEventListener('click', closePurchaseModal);
-
-        document.querySelectorAll('.purchase-btn').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const card = e.target.closest('.product-card');
-                openPurchaseModal(card.dataset.name, card.dataset.price);
-            });
-        });
-
-        startPaymentBtn.addEventListener('click', async (e) => {
-            const name = e.target.dataset.name;
-            const price = e.target.dataset.price;
-            
-            step1.classList.add('hidden');
-            step2.classList.remove('hidden');
-            loadingSpinner.classList.remove('hidden');
-            paymentFeedback.textContent = 'Gerando link de pagamento...';
-            
-            try {
-                const createPaymentPreference = httpsCallable(functions, 'createPaymentPreference');
-                const result = await createPaymentPreference({ title: name, price: price });
-                const preferenceId = result.data.preferenceId;
-
-                loadingSpinner.classList.add('hidden');
-                paymentFeedback.textContent = '';
-                await renderPaymentBrick(preferenceId, price);
-
-            } catch (error) {
-                console.error("Erro ao chamar a função de back-end:", error);
-                loadingSpinner.classList.add('hidden');
-                paymentFeedback.innerHTML = `Erro: ${error.message}<br>Verifique se a função de back-end foi publicada corretamente.`;
-                 setTimeout(() => {
-                    step1.classList.remove('hidden');
-                    step2.classList.add('hidden');
-                }, 5000);
-            }
-        });
-        
-        async function renderPaymentBrick(preferenceId, price) {
-            if (currentBrick) currentBrick.unmount();
-            const bricksBuilder = mp.bricks();
-            const settings = {
-                initialization: {
-                    amount: parseFloat(price),
-                    preferenceId: preferenceId,
-                },
-                customization: {
-                    visual: { style: { theme: 'dark' } }
-                },
-                callbacks: {
-                    onReady: () => {},
-                    onSubmit: (cardFormData) => {
-                        return new Promise((resolve) => resolve());
-                    },
-                    onError: (error) => console.error(error),
-                },
-            };
-            currentBrick = await bricksBuilder.create('payment', 'payment-brick-container', settings);
+            return result;
         }
 
-        // --- LÓGICA DE ATUALIZAÇÃO DA UI DE AUTENTICAÇÃO ---
-        const authContainer = document.getElementById('auth-container');
-        onAuthStateChanged(auth, user => {
-             if (user) {
-                const displayName = user.email ? user.email.split('@')[0] : 'Usuário';
-                authContainer.innerHTML = `<span class="text-slate-300 text-sm">Olá, ${displayName}</span><button id="logout-btn" class="font-semibold text-slate-300 hover:text-white transition-colors bg-slate-700/50 px-4 py-2 rounded-lg">Sair</button>`;
-                document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+        // --- FUNÇÕES DE RENDERIZAÇÃO ---
+        function getCellClasses(char, status, isActiveRow, isActiveCell) {
+            let base = "flex items-center justify-center font-bold text-lg sm:text-2xl rounded-md transition-all duration-300 w-full h-10 sm:h-14 ";
+            
+            if (status === 'green') return base + "bg-emerald-500 border-2 border-emerald-500 text-white shadow-[0_0_10px_rgba(16,185,129,0.5)]";
+            if (status === 'yellow') return base + "bg-yellow-500 border-2 border-yellow-500 text-white shadow-[0_0_10px_rgba(234,179,8,0.5)]";
+            if (status === 'gray') return base + "bg-slate-700 border-2 border-slate-600 text-slate-300 opacity-70";
+            
+            if (isActiveCell) return base + "bg-slate-800 border-b-4 border-slate-700 border-b-emerald-500 text-emerald-400 shadow-[0_4px_10px_rgba(52,211,153,0.15)] animate-pulse";
+            
+            if (isActiveRow && char) return base + "bg-slate-800 border-2 border-emerald-400 text-emerald-400 scale-105 shadow-[0_0_8px_rgba(52,211,153,0.3)]";
+            
+            return base + "bg-slate-800 border-2 border-slate-700 text-slate-100";
+        }
+
+        function renderGrid() {
+            let html = '';
+            const passLength = targetPassword.length;
+
+            for (let i = 0; i < MAX_GUESSES; i++) {
+                const isCurrentRow = i === guesses.length;
+                const guess = guesses[i];
+                const displayStr = guess || (isCurrentRow ? currentGuess : '');
+                const evaluated = guess ? evaluateGuess(guess, targetPassword) : null;
+
+                html += `<div class="grid gap-1.5 sm:gap-2" style="grid-template-columns: repeat(${passLength}, minmax(0, 1fr))">`;
+                
+                for (let j = 0; j < passLength; j++) {
+                    const char = displayStr[j] || '';
+                    const status = evaluated ? evaluated[j] : null;
+                    const isActiveCell = isCurrentRow && j === currentGuess.length && !gameOver;
+                    
+                    const cellClass = getCellClasses(char, status, isCurrentRow, isActiveCell);
+                    html += `<div class="${cellClass}">${char}</div>`;
+                }
+                
+                html += `</div>`;
+            }
+            gridContainer.innerHTML = html;
+        }
+
+        function updateUI() {
+            renderGrid();
+
+            // Atualiza o estado do botão
+            if (currentGuess.length === targetPassword.length && !gameOver) {
+                btnSubmit.disabled = false;
+                btnSubmit.className = "font-bold py-4 rounded-lg transition-colors flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white active:scale-95";
             } else {
-                authContainer.innerHTML = `<button id="login-btn-main" class="font-semibold text-slate-300 hover:text-white transition-colors">Login</button><button id="register-btn-main" class="bg-violet-600 hover:bg-violet-500 text-white font-semibold py-2 px-5 rounded-lg button-glow">Cadastrar-se</button>`;
-                document.getElementById('login-btn-main').addEventListener('click', () => openAuthModal('login'));
-                document.getElementById('register-btn-main').addEventListener('click', () => openAuthModal('register'));
+                btnSubmit.disabled = true;
+                btnSubmit.className = "font-bold py-4 rounded-lg transition-colors flex items-center justify-center gap-2 bg-slate-800 text-slate-500 cursor-not-allowed";
+            }
+
+            // Mostra/Esconde controles de fim de jogo
+            if (gameOver) {
+                hiddenInput.style.display = 'none';
+                controlsContainer.classList.add('hidden');
+                restartContainer.classList.remove('hidden');
+            } else {
+                hiddenInput.style.display = 'block';
+                controlsContainer.classList.remove('hidden');
+                restartContainer.classList.add('hidden');
+            }
+
+            // Atualiza ícone do cadeado
+            if (gameWon) {
+                iconLock.classList.add('hidden');
+                iconUnlock.classList.remove('hidden');
+            } else {
+                iconLock.classList.remove('hidden');
+                iconUnlock.classList.add('hidden');
+            }
+        }
+
+        function showMessage(msg, isSuccess = false) {
+            if (messageTimeout) clearTimeout(messageTimeout);
+            
+            messageText.textContent = msg;
+            messageBox.classList.remove('hidden', 'bg-emerald-500/20', 'text-emerald-400', 'bg-red-500/20', 'text-red-400');
+            
+            if (isSuccess) {
+                messageBox.classList.add('bg-emerald-500/20', 'text-emerald-400');
+            } else {
+                messageBox.classList.add('bg-red-500/20', 'text-red-400');
+            }
+
+            messageTimeout = setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 3000);
+        }
+
+        // --- LÓGICA DO JOGO ---
+        function startNewGame() {
+            targetPassword = PASSWORD_DATABASE[Math.floor(Math.random() * PASSWORD_DATABASE.length)];
+            guesses = [];
+            currentGuess = '';
+            gameOver = false;
+            gameWon = false;
+            hiddenInput.value = '';
+            messageBox.classList.add('hidden');
+            
+            updateUI();
+            setTimeout(() => hiddenInput.focus(), 100);
+        }
+
+        function submitGuess() {
+            if (gameOver) return;
+
+            if (currentGuess.length < targetPassword.length) {
+                showMessage(`A senha precisa ter ${targetPassword.length} caracteres!`);
+                return;
+            }
+
+            guesses.push(currentGuess);
+            
+            if (currentGuess === targetPassword) {
+                gameWon = true;
+                gameOver = true;
+                showMessage('Acesso Concedido! Você descobriu a senha.', true);
+            } else if (guesses.length >= MAX_GUESSES) {
+                gameOver = true;
+                showMessage(`Acesso Negado! A senha era: ${targetPassword}`);
+            }
+
+            currentGuess = '';
+            hiddenInput.value = '';
+            updateUI();
+        }
+
+        // --- LISTENERS DE EVENTOS ---
+        hiddenInput.addEventListener('input', (e) => {
+            if (gameOver) return;
+            const value = e.target.value.replace(/\s/g, ''); // Evita espaços
+            if (value.length <= targetPassword.length) {
+                currentGuess = value;
+                // Força o valor do input a acompanhar o currentGuess (caso cole texto maior)
+                hiddenInput.value = currentGuess; 
+                updateUI();
             }
         });
-        
+
+        hiddenInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                submitGuess();
+            }
+        });
+
+        btnSubmit.addEventListener('click', submitGuess);
+        btnRestart.addEventListener('click', startNewGame);
+
+        // Garante que o input ganhe foco ao clicar na área do jogo
+        gameContainer.addEventListener('click', () => {
+            if (!gameOver) {
+                hiddenInput.focus();
+            }
+        });
+
+        // --- INICIAR JOGO AO CARREGAR ---
+        window.onload = startNewGame;
+
     </script>
 </body>
 </html>
